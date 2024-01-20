@@ -1,0 +1,30 @@
+{
+    "targetFolder": "/Users/NobuakiKomoto/XIVMods/XIV Rus/",
+    "filesToDelete": [
+        "addon_0_en.exd",
+        "addontransient_0_en.exd",
+        "configkey_0_en.exd",
+        "contentfindercondition_0_en.exd",
+        "contentfinderconditiontransient_0_en.exd",
+        "contenttype_0_en.exd",
+        "contentuicategory_0_en.exd",
+        "emote_0_en.exd",
+        "fcprofile_0_en.exd",
+        "gcranklimsamaletext_0_en.exd",
+        "gcrankgridaniamaletext_0_en.exd",
+        "gcrankuldahmaletext_0_en.exd",
+        "guardiandeity_0_en.exd",
+        "lobby_0_en.exd",
+        "logfilter_0_en.exd",
+        "logmessage_0_en.exd",
+        "maincommand_0_en.exd",
+        "maincommandcategory_0_en.exd",
+        "placename_0_en.exd",
+        "tripletriadcard_0_en.exd",
+        "tripletriadcompetition_0_en.exd",
+        "tripletriadrule_0_en.exd",
+        "warp_131072_en.exd",
+        "quickchattransient_0_en.exd",
+        "quickchat_0_en.exd"
+    ]
+}

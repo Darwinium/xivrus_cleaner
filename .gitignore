@@ -1,0 +1,6 @@
+.DS_Store
+.vscode
+settings.json
+test.json
+testdata
+fyne-cross
