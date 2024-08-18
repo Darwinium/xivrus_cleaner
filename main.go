@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -19,9 +20,21 @@ type Settings struct {
 	FilesToDelete []string `json:"filesToDelete"`
 }
 
+type SettingsNew struct {
+	TargetFolder  string               `json:"targetFolder"`
+	FilesToDelete []SettingsFilesGroup `json:"filesToDelete"`
+}
+
+type SettingsFilesGroup struct {
+	Name  string   `json:"name"`
+	Files []string `json:"files"`
+}
+
 //go:embed *.json
 var settingFile embed.FS
 var settings Settings
+var settingsNew SettingsNew
+var filesToDelete []string
 
 func (s *Settings) read() string {
 	var logText string
@@ -36,6 +49,25 @@ func (s *Settings) read() string {
 			logText += "❌ Error parsing settings from settings.json => " + err.Error() + "\n"
 		} else {
 			logText += "🔄 The settings have been parsed successfully\n"
+		}
+	}
+
+	return logText
+}
+
+func (s *SettingsNew) read() string {
+	var logText string
+
+	settingsData, err := settingFile.ReadFile("settings.new.json")
+	if err != nil {
+		logText += "❌ Error reading the settings file => " + err.Error() + "\n"
+	} else {
+		logText += "✅ Reading NEW settings.new.json successfull\n"
+
+		if err := json.Unmarshal(settingsData, s); err != nil {
+			logText += "❌ Error parsing settings from settings.json => " + err.Error() + "\n"
+		} else {
+			logText += "🔄 The NEW settings have been parsed successfully\n"
 		}
 	}
 
@@ -58,26 +90,30 @@ func createFolderSelectionEntry() *widget.Entry {
 	return folderEntry
 }
 
-func createCheckboxes() *fyne.Container {
+func createCheckboxes(logsOutput *widget.Label) *fyne.Container {
 	checkboxesLabel := widget.NewLabel("Select the translation that you want to delete:")
 	checkboxesLabel.TextStyle.Bold = true
-	uiCheckbox := widget.NewCheck("User Interface", func(checked bool) {})
-	questsCheckbox := widget.NewCheck("Triad Games", func(checked bool) {})
-	skillsCheckbox := widget.NewCheck("Warp", func(checked bool) {})
-	chatCheckbox := widget.NewCheck("Dungion Finder", func(checked bool) {})
-	emoteCheckbox := widget.NewCheck("Emote", func(checked bool) {})
-
-	checkboxes := container.NewVBox(
+	checkboxesLayer := container.NewVBox(
 		checkboxesLabel,
-		uiCheckbox,
-		questsCheckbox,
-		skillsCheckbox,
-		chatCheckbox,
-		emoteCheckbox,
 	)
 
-	return checkboxes
+	for _, data := range settingsNew.FilesToDelete {
+		cbData := &SettingsFilesGroup{Name: data.Name, Files: data.Files}
+		cb := widget.NewCheck(cbData.Name, func(checked bool) {
+			if checked {
+				logsOutput.SetText(logsOutput.Text + "Checked Files: " + strings.Join(cbData.Files, ", ") + "\n")
+				filesToDelete = append(filesToDelete, cbData.Files...)
+			}
+		})
+		checkboxesLayer.Add(cb)
+	}
+
+	return checkboxesLayer
 }
+
+// func getOnlySelected() {
+
+// }
 
 func createDeleteButton(logsOutput *widget.Label, logContainer *container.Scroll, folderEntry *widget.Entry, myWindow fyne.Window) *widget.Button {
 	deleteButton := widget.NewButton("Delete selected translation", func() {
@@ -143,11 +179,12 @@ func main() {
 
 	// Init Settings
 	logsOutput.SetText(logsOutput.Text + settings.read())
+	logsOutput.SetText(logsOutput.Text + settingsNew.read())
 	logContainer.ScrollToBottom()
 
 	folderEntry := createFolderSelectionEntry()
 
-	checkboxes := createCheckboxes()
+	checkboxes := createCheckboxes(logsOutput)
 
 	deleteButton := createDeleteButton(logsOutput, logContainer, folderEntry, myWindow)
 
